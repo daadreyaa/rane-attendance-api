@@ -78,7 +78,7 @@ app.get('/attendanceOfDay', function (req, res) {
                 if (err) console.log(err)
 
                 if (recordset2['recordset'].length == 0)
-                    return res.json({ data: { inTime: recordset1['recordset'][0]['VARTIME'], outTime: 'Not Yet' } });
+                    return res.json({ data: { inTime: recordset1['recordset'][0]['VARTIME'], outTime: 'Missing' } });
 
                 res.json({ data: { inTime: recordset1['recordset'][0]['VARTIME'], outTime: recordset2['recordset'][0]['VARTIME'] } });
                 // res.status(200).json({ mobile: recordset["recordset"][0]["mobile_no1"] });
@@ -112,6 +112,39 @@ app.get('/test', function (req, res) {
     });
 });
 
+
+app.get('/profile', function (req, res) {
+    sql.connect(config, function (err) {
+        if (err) console.log(err);
+
+        console.log('profile');
+
+        const userBiometric = req.query.userBiometric;
+
+        var request = new sql.Request();
+
+        request.input('userBiometric', sql.VarChar, userBiometric);
+
+        request.query("select fullname, dept_slno, apln_slno, doj, birthdate, desig_slno, mobile_no1 from trainee_apln where biometric_no=@userBiometric", function (err, recordset) {
+            if (err) console.log(err);
+
+            let decodedData = recordset['recordset'][0];
+
+            res.send({
+                data: {
+                    'fullname': decodedData['fullname'],
+                    'department': decodedData['dept_slno'],
+                    'empid': decodedData['apln_slno'],
+                    'doj': decodedData['doj'],
+                    'birthdate': decodedData['birthdate'],
+                    'designation': decodedData['desig_slno'],
+                    'contact_no': decodedData['mobile_no1'],
+                    'email': 'example@email.com'
+                }
+            });
+        });
+    });
+});
 
 
 
